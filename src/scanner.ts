@@ -24,11 +24,27 @@ class TokenStream {
     this.current = 0;
   }
 
-  public getCurrent(): Token | undefined {
-    if (this.current < this.tokens.length) {
-      return this.tokens[this.current];
+  public peek(offset: number = 0): Token | undefined {
+    if (this.current + offset < this.tokens.length) {
+      return this.tokens[this.current + offset];
     }
     return undefined;
+  }
+
+  public advance(offset: number = 0): Token | undefined {
+    if (this.current + offset < this.tokens.length) {
+      this.current += offset;
+      return this.peek();
+    }
+    return undefined;
+  }
+
+  public expect(type: TokenType): boolean {
+    return this.peek()?.type === type;
+  }
+
+  public getAllTokens(): Token[] {
+    return this.tokens;
   }
 }
 
@@ -71,27 +87,33 @@ class Scanner {
       switch (char) {
         case '[':
           this.makeToken('Left Bracket');
+          this.current++;
           break;
         case ']':
           this.makeToken('Right Bracket');
+          this.current++;
           break;
         case '{':
           this.makeToken('Left Brace');
+          this.current++;
           break;
         case '}':
           this.makeToken('Right Brace');
+          this.current++;
           break;
         case ':':
           this.makeToken('Colon');
+          this.current++;
           break;
         case ',':
           this.makeToken('Comma');
+          this.current++;
           break;
         default:
           break;
       }
 
-      if (char === '"' || char === "'") {
+      if (char === '"') {
         this.scanString();
       } else if (this.isDigit(char)) {
         this.scanNumber();
@@ -161,3 +183,5 @@ class Scanner {
     console.error(this);
   }
 }
+
+export { TokenStream, Scanner };
