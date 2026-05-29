@@ -31,7 +31,7 @@ class TokenStream {
     return undefined;
   }
 
-  public advance(offset: number = 0): Token | undefined {
+  public advance(offset: number = 1): Token | undefined {
     if (this.current + offset < this.tokens.length) {
       this.current += offset;
       return this.peek();
@@ -41,6 +41,14 @@ class TokenStream {
 
   public expect(type: TokenType): boolean {
     return this.peek()?.type === type;
+  }
+
+  public match(type: TokenType): boolean {
+    if (this.peek()?.type === type) {
+      this.advance();
+      return true;
+    }
+    return false;
   }
 
   public getAllTokens(): Token[] {
