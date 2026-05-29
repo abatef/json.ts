@@ -1,11 +1,14 @@
 import { Scanner, TokenStream } from './scanner.ts';
+import { Parser } from './parser.ts';
 
 function RunMain() {
-  const scanner: Scanner = new Scanner(`{"name": "Alex", "age": 22}`);
+  const json = `{ "name": 12 }`;
+  const scanner: Scanner = new Scanner(json);
   scanner.scan();
   const stream: TokenStream = scanner.getTokenStream();
-
-  console.log(stream.getAllTokens());
+  const parser = new Parser(stream);
+  const value = parser.parseValue();
+  console.log(value);
 }
 
 RunMain();

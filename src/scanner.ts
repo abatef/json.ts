@@ -45,7 +45,6 @@ class TokenStream {
 
   public match(type: TokenType): boolean {
     if (this.peek()?.type === type) {
-      this.advance();
       return true;
     }
     return false;
