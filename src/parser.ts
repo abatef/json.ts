@@ -1,5 +1,7 @@
 import type { TokenStream } from './scanner';
 
+import process from 'node:process';
+
 type ValueType = 'Object' | 'Array' | 'Member' | 'Literal';
 type LiteralType = 'String' | 'Boolean' | 'Number' | 'Null';
 
@@ -33,15 +35,15 @@ class JsonLiteral extends JsonValue {
 }
 
 class JsonMember extends JsonValue {
-  private key_: string | undefined;
+  private key_: JsonValue | undefined;
   private val_: JsonValue | undefined;
-  public constructor(key: string | undefined, val: JsonValue | undefined) {
+  public constructor(key: JsonValue | undefined, val: JsonValue | undefined) {
     super('Member');
     this.key_ = key;
     this.val_ = val;
   }
 
-  public get key(): string | undefined {
+  public get key(): JsonValue | undefined {
     return this.key_;
   }
 
@@ -101,17 +103,12 @@ class Parser {
       const array: JsonArray = new JsonArray();
       return this.parseArray(array);
     } else if (this.ts.match('Left Brace')) {
-      return this.parseObject();
+      const object: JsonObject = new JsonObject();
+      return this.parseObject(object);
     } else if (this.ts.match('String')) {
       const key: string | undefined = this.ts.peek()?.value;
       this.ts.advance();
-      if (this.ts.match('Colon')) {
-        this.ts.advance();
-        const value: JsonValue | undefined = this.parseValue();
-        return new JsonMember(key, value);
-      } else {
-        return new JsonLiteral(key, 'String');
-      }
+      return new JsonLiteral(key, 'String');
     } else if (this.ts.match('True') || this.ts.match('False')) {
       const value: boolean = this.ts.peek()?.type === 'True' ? true : false;
       this.ts.advance();
@@ -142,13 +139,36 @@ class Parser {
         array = this.parseArray(array);
       } else if (this.ts.match('Right Bracket')) {
         return array;
+      } else {
+        process.exit(1);
       }
     }
     return array;
   }
 
-  private parseObject(): JsonObject {
-    return new JsonObject();
+  private parseObject(object: JsonObject): JsonObject {
+    if (this.ts.match('Left Brace') || this.ts.match('Comma')) {
+      this.ts.advance();
+      if (this.ts.match('String')) {
+        const key: JsonValue | undefined = this.parseValue();
+        if (key) {
+          if (this.ts.match('Colon')) {
+            this.ts.advance();
+            const value: JsonValue | undefined = this.parseValue();
+            if (value) {
+              const member: JsonMember = new JsonMember(key, value);
+              object.addMember(member);
+              if (this.ts.match('Comma')) {
+                object = this.parseObject(object);
+              } else if (this.ts.match('Right Brace')) {
+                return object;
+              }
+            }
+          }
+        }
+      }
+    }
+    return object;
   }
 }
 
