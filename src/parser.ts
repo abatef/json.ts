@@ -98,7 +98,8 @@ class Parser {
 
   public parseValue(): JsonValue | undefined {
     if (this.ts.match('Left Bracket')) {
-      this.parseArray();
+      const array: JsonArray = new JsonArray();
+      return this.parseArray(array);
     } else if (this.ts.match('Left Brace')) {
       return this.parseObject();
     } else if (this.ts.match('String')) {
@@ -112,7 +113,7 @@ class Parser {
         return new JsonLiteral(key, 'String');
       }
     } else if (this.ts.match('True') || this.ts.match('False')) {
-      const value: boolean = this.ts.peek()?.type ? true : false;
+      const value: boolean = this.ts.peek()?.type === 'True' ? true : false;
       this.ts.advance();
       return new JsonLiteral(value, 'Boolean');
     } else if (this.ts.match('Number')) {
@@ -121,23 +122,34 @@ class Parser {
       if (value) {
         return new JsonLiteral(Number.parseInt(value), 'Number');
       }
+    } else if (this.ts.match('Null')) {
+      this.ts.advance();
+      return new JsonLiteral(null, 'Null');
     }
+
     return undefined;
   }
 
-  private parseArray(): JsonArray {
-    this.parseValue();
-    if (this.ts.match('Comma')) {
-      this.parseValue();
-    } else if (this.ts.match('Right Bracket')) {
-      // End Array
-    }
+  private parseArray(array: JsonArray): JsonArray {
+    if (this.ts.match('Left Bracket') || this.ts.match('Comma')) {
+      this.ts.advance();
+      const element: JsonValue | undefined = this.parseValue();
+      if (element) {
+        array.addElement(element);
+      }
 
-    return new JsonArray();
+      if (this.ts.match('Comma')) {
+        array = this.parseArray(array);
+      } else if (this.ts.match('Right Bracket')) {
+        return array;
+      }
+    }
+    return array;
   }
+
   private parseObject(): JsonObject {
     return new JsonObject();
   }
 }
 
-export { Parser, JsonArray, JsonObject, JsonMember, JsonValue, JsonLiteral };
+export { Parser };
