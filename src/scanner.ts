@@ -14,26 +14,28 @@ type TokenType =
 interface Token {
   type: TokenType;
   value: string | undefined;
+  line?: number;
+  col?: number;
 }
 
 class TokenStream {
-  private tokens: Token[];
-  private current: number;
+  private tokens_: Token[];
+  private current_: number;
   constructor(tokens: Token[]) {
-    this.tokens = tokens;
-    this.current = 0;
+    this.tokens_ = tokens;
+    this.current_ = 0;
   }
 
   public peek(offset: number = 0): Token | undefined {
-    if (this.current + offset < this.tokens.length) {
-      return this.tokens[this.current + offset];
+    if (this.current_ + offset < this.tokens_.length) {
+      return this.tokens_[this.current_ + offset];
     }
     return undefined;
   }
 
   public advance(offset: number = 1): Token | undefined {
-    if (this.current + offset < this.tokens.length) {
-      this.current += offset;
+    if (this.current_ + offset < this.tokens_.length) {
+      this.current_ += offset;
       return this.peek();
     }
     return undefined;
@@ -51,32 +53,36 @@ class TokenStream {
   }
 
   public getAllTokens(): Token[] {
-    return this.tokens;
+    return this.tokens_;
+  }
+
+  public current() {
+    return this.tokens_[this.current_];
   }
 }
 
 class Scanner {
-  private data: string;
-  private current: number;
-  private tokens: Token[];
+  private data_: string;
+  private current_: number;
+  private tokens_: Token[];
 
   constructor(data: string) {
-    this.current = 0;
-    this.data = data;
-    this.tokens = [];
+    this.current_ = 0;
+    this.data_ = data;
+    this.tokens_ = [];
   }
 
   public getTokenStream(): TokenStream {
-    return new TokenStream(this.tokens);
+    return new TokenStream(this.tokens_);
   }
 
   private currentChar() {
-    return this.data[this.current];
+    return this.data_[this.current_];
   }
 
   private makeToken(type: TokenType, value: string | undefined = undefined): void {
     const token = { type: type, value: value };
-    this.tokens.push(token);
+    this.tokens_.push(token);
   }
 
   private isDigit(char: string): boolean {
@@ -88,33 +94,33 @@ class Scanner {
   }
 
   public scan() {
-    while (this.current < this.data.length) {
+    while (this.current_ < this.data_.length) {
       this.skipSpaces();
       const char = this.currentChar();
       switch (char) {
         case '[':
           this.makeToken('Left Bracket');
-          this.current++;
+          this.current_++;
           break;
         case ']':
           this.makeToken('Right Bracket');
-          this.current++;
+          this.current_++;
           break;
         case '{':
           this.makeToken('Left Brace');
-          this.current++;
+          this.current_++;
           break;
         case '}':
           this.makeToken('Right Brace');
-          this.current++;
+          this.current_++;
           break;
         case ':':
           this.makeToken('Colon');
-          this.current++;
+          this.current_++;
           break;
         case ',':
           this.makeToken('Comma');
-          this.current++;
+          this.current_++;
           break;
         default:
           break;
@@ -134,41 +140,41 @@ class Scanner {
     let number: string = '';
     while (this.isDigit(this.currentChar())) {
       number += this.currentChar();
-      this.current++;
+      this.current_++;
     }
     this.makeToken('Number', number);
   }
 
   private scanString(): void {
     const quote = this.currentChar();
-    this.current++;
+    this.current_++;
     let string: string = '';
     while (this.currentChar() !== quote) {
       string += this.currentChar();
-      this.current++;
+      this.current_++;
     }
-    this.current++;
+    this.current_++;
     this.makeToken('String', string);
   }
 
   private scanLiteral(): void {
     if (this.currentChar() === 't' /* true */) {
-      const trueString = this.data.substring(this.current, this.current + 4);
+      const trueString = this.data_.substring(this.current_, this.current_ + 4);
       if (trueString === 'true') {
         this.makeToken('True');
-        this.current += 4;
+        this.current_ += 4;
       }
     } else if (this.currentChar() === 'f' /* false */) {
-      const falseString = this.data.substring(this.current, this.current + 5);
+      const falseString = this.data_.substring(this.current_, this.current_ + 5);
       if (falseString === 'false') {
         this.makeToken('False');
-        this.current += 5;
+        this.current_ += 5;
       }
     } else if (this.currentChar() === 'n' /* null */) {
-      const nullString = this.data.substring(this.current, this.current + 4);
+      const nullString = this.data_.substring(this.current_, this.current_ + 4);
       if (nullString === 'null') {
         this.makeToken('Null');
-        this.current += 4;
+        this.current_ += 4;
       }
     } else {
       this.reportError('not valid literal value', this.currentChar());
@@ -177,7 +183,7 @@ class Scanner {
 
   private skipSpaces(): void {
     while (this.currentChar() === ' ') {
-      this.current++;
+      this.current_++;
     }
   }
 

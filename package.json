@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test:scanner": "node ./src/main.ts"
+    "test": "node ./src/main.ts",
+    "build": "tsc "
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
