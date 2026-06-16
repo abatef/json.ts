@@ -40,9 +40,41 @@ function testNonPrettyJson() {
   console.log(visitor.json);
 }
 
+function testOnlyArrayJson() {
+  const array = `[
+        {
+           "precision": "zip",
+           "Latitude":  .7668,
+           "Longitude": 2,
+           "Address":   "",
+           "City":      "SAN FRANCISCO",
+           "State":     "CA",
+           "Zip":       "94107",
+           "Country":   "US"
+        },
+        {
+           "precision": "zip",
+           "Latitude":  37.371991,
+           "Longitude": -122.026020,
+           "Address":   "",
+           "City":      "SUNNYVALE",
+           "State":     "CA",
+           "Zip":       "94085",
+           "Country":   "US"
+        }
+      ]
+`;
+
+  const value = runTest(array);
+  const visitor = new PrettyPrintVisitor();
+  value?.accept(visitor);
+  console.log(visitor.json);
+}
+
 function runAllTests() {
   testPrettyJson();
   testNonPrettyJson();
+  testOnlyArrayJson();
 }
 
 runAllTests();

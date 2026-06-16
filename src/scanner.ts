@@ -128,7 +128,7 @@ class Scanner {
 
       if (char === '"') {
         this.scanString();
-      } else if (this.isDigit(char)) {
+      } else if (this.isDigit(char) || this.currentChar() === '-' || this.currentChar() === '.') {
         this.scanNumber();
       } else if (this.isChar(char)) {
         this.scanLiteral();
@@ -138,7 +138,11 @@ class Scanner {
 
   private scanNumber(): void {
     let number: string = '';
-    while (this.isDigit(this.currentChar())) {
+    while (
+      this.isDigit(this.currentChar()) ||
+      this.currentChar() === '.' ||
+      this.currentChar() === '-'
+    ) {
       number += this.currentChar();
       this.current_++;
     }

@@ -175,7 +175,7 @@ class Parser {
       const value: string | undefined = this.ts_.peek()?.value;
       this.ts_.advance();
       if (value) {
-        return new JsonLiteral(Number.parseInt(value), 'Number');
+        return new JsonLiteral(Number.parseFloat(value), 'Number');
       }
     } else if (this.ts_.match('Null')) {
       this.ts_.advance();
