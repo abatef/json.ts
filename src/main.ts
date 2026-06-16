@@ -66,7 +66,7 @@ function testOnlyArrayJson() {
 `;
 
   const value = runTest(array);
-  const visitor = new PrettyPrintVisitor();
+  const visitor = new PrettyPrintVisitor(2);
   value?.accept(visitor);
   console.log(visitor.json);
 }

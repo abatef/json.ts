@@ -1,54 +1,64 @@
 import { JsonValue, JsonLiteral, JsonArray, JsonMember, JsonObject } from './parser.ts';
 
 export class PrettyPrintVisitor {
-  private jsonString: string = '';
-  private ident: number = 0;
+  private json_: string = '';
+  private ident_: number = 0;
+  private identFactor_: number;
+
+  public constructor(identFactor: number = 2) {
+    this.identFactor_ = identFactor;
+  }
+
+  private get ident(): number {
+    return this.ident_ * this.identFactor_;
+  }
+
   public visitValue(value: JsonValue) {
     value.accept(this);
   }
   public visitLiteral(literal: JsonLiteral) {
-    this.jsonString += literal.toString();
+    this.json_ += literal.toString();
   }
   public visitMember(member: JsonMember) {
-    this.jsonString += ' '.repeat(this.ident);
-    this.jsonString += member.key?.toString() + ': ';
+    this.json_ += ' '.repeat(this.ident);
+    this.json_ += member.key?.toString() + ': ';
     member.value?.accept(this);
   }
   public visitObject(object: JsonObject) {
-    this.ident += 2;
-    this.jsonString += '{\n';
+    this.ident_ += 1;
+    this.json_ += '{\n';
     for (let i = 0; i < object.members.length; i++) {
       object.members[i].accept(this);
       if (i !== object.members.length - 1) {
-        this.jsonString += ',\n';
+        this.json_ += ',\n';
       } else {
-        this.jsonString += '\n';
+        this.json_ += '\n';
       }
     }
-    this.ident -= 2;
-    this.jsonString += ' '.repeat(this.ident) + '}';
+    this.ident_ -= 1;
+    this.json_ += ' '.repeat(this.ident) + '}';
   }
   public visitArray(array: JsonArray) {
-    this.jsonString += '[\n';
-    this.ident += 2;
+    this.json_ += '[\n';
+    this.ident_ += 1;
     for (let i = 0; i < array.elements.length; i++) {
-      this.jsonString += ' '.repeat(this.ident);
+      this.json_ += ' '.repeat(this.ident);
       array.elements[i].accept(this);
       if (i !== array.elements.length - 1) {
-        this.jsonString += ',\n';
+        this.json_ += ',\n';
       } else {
-        this.jsonString += '\n';
+        this.json_ += '\n';
       }
     }
-    this.ident -= 2;
-    this.jsonString += ' '.repeat(this.ident) + ']';
+    this.ident_ -= 1;
+    this.json_ += ' '.repeat(this.ident) + ']';
   }
 
   public toString(): string {
-    return this.jsonString;
+    return this.json_;
   }
 
   public get json() {
-    return this.jsonString;
+    return this.json_;
   }
 }
