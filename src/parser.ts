@@ -1,4 +1,5 @@
 import type { TokenStream } from './scanner';
+import { PrettyPrintVisitor } from './prettyPrint.ts';
 
 type ValueType = 'Object' | 'Array' | 'Member' | 'Literal';
 type LiteralType = 'String' | 'Boolean' | 'Number' | 'Null';
@@ -11,6 +12,14 @@ class JsonValue {
 
   public get type() {
     return this.type_;
+  }
+
+  public toString(): string | undefined {
+    return undefined;
+  }
+
+  public accept(visitor: PrettyPrintVisitor) {
+    visitor.visitValue(this);
   }
 }
 
@@ -30,6 +39,21 @@ class JsonLiteral extends JsonValue {
   public get literalType(): LiteralType {
     return this.literalType_;
   }
+
+  public toString(): string | undefined {
+    if (
+      this.literalType_ === 'Number' ||
+      this.literalType_ === 'Boolean' ||
+      this.literalType_ === 'Null'
+    ) {
+      return this.value_?.toString();
+    }
+    return `"${this.value_?.toString()}"`;
+  }
+
+  public accept(visitor: PrettyPrintVisitor) {
+    visitor.visitLiteral(this);
+  }
 }
 
 class JsonMember extends JsonValue {
@@ -48,6 +72,14 @@ class JsonMember extends JsonValue {
   public get value(): JsonValue | undefined {
     return this.val_;
   }
+
+  public toString(): string | undefined {
+    return this.key?.toString() + ': ' + this.value?.toString();
+  }
+
+  public accept(visitor: PrettyPrintVisitor) {
+    visitor.visitMember(this);
+  }
 }
 
 class JsonObject extends JsonValue {
@@ -63,6 +95,20 @@ class JsonObject extends JsonValue {
 
   public get members() {
     return this.members_;
+  }
+
+  public toString(): string | undefined {
+    let objStr = '{ ';
+    for (const member of this.members_) {
+      objStr += member.toString() + ', ';
+    }
+    objStr = objStr.slice(0, -2);
+    objStr += ' }';
+    return objStr;
+  }
+
+  public accept(visitor: PrettyPrintVisitor) {
+    visitor.visitObject(this);
   }
 }
 
@@ -86,6 +132,20 @@ class JsonArray extends JsonValue {
       return this.elements_[index];
     }
     return undefined;
+  }
+
+  public toString(): string | undefined {
+    let arrStr = '[ ';
+    for (const element of this.elements_) {
+      arrStr += element.toString() + ', ';
+    }
+    arrStr = arrStr.slice(0, -2);
+    arrStr += ' ]';
+    return arrStr;
+  }
+
+  public accept(visitor: PrettyPrintVisitor) {
+    visitor.visitArray(this);
   }
 }
 
@@ -187,4 +247,4 @@ class Parser {
   }
 }
 
-export { Parser };
+export { Parser, JsonArray, JsonLiteral, JsonMember, JsonObject, JsonValue };

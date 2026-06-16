@@ -182,7 +182,11 @@ class Scanner {
   }
 
   private skipSpaces(): void {
-    while (this.currentChar() === ' ') {
+    while (
+      this.currentChar() === ' ' ||
+      this.currentChar() === '\n' ||
+      this.currentChar() === '\t'
+    ) {
       this.current_++;
     }
   }
