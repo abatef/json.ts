@@ -16,14 +16,17 @@ export class PrettyPrintVisitor {
   public visitValue(value: JsonValue) {
     value.accept(this);
   }
+
   public visitLiteral(literal: JsonLiteral) {
     this.json_ += literal.toString();
   }
+
   public visitMember(member: JsonMember) {
     this.json_ += ' '.repeat(this.indent);
     this.json_ += member.key?.toString() + ': ';
     member.value?.accept(this);
   }
+
   public visitObject(object: JsonObject) {
     this.indent_ += 1;
     this.json_ += '{\n';
@@ -38,6 +41,7 @@ export class PrettyPrintVisitor {
     this.indent_ -= 1;
     this.json_ += ' '.repeat(this.indent) + '}';
   }
+
   public visitArray(array: JsonArray) {
     this.json_ += '[\n';
     this.indent_ += 1;
