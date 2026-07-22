@@ -240,7 +240,7 @@ class Parser {
         this.ts_.advance();
         return object;
       } else {
-        throw new SyntaxError("exptected '}'");
+        throw new SyntaxError("expected '}'");
       }
     }
     return object;
