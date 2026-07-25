@@ -33,7 +33,7 @@ function testPrettyJson() {
 }
 
 function testNonPrettyJson() {
-  const json = `{"name": "Max", "age": 22, "married": true, "wife": "Vivian", "childern": ["Luke", "Emma", "Ellie"]}`;
+  const json = `{"name": "Max", "age": 22, "married": true, "wife": "Vivian", "children": ["Luke", "Emma", "Ellie"]}`;
   const value = runTest(json);
   const visitor = new PrettyPrintVisitor();
   value?.accept(visitor);
