@@ -153,9 +153,14 @@ class Scanner {
     const quote = this.currentChar();
     this.current_++;
     let string: string = '';
-    while (this.currentChar() !== quote) {
+    while (this.current_ < this.data_.length && this.currentChar() !== quote) {
       string += this.currentChar();
       this.current_++;
+    }
+    if (this.current_ >= this.data_.length || this.currentChar() !== quote) {
+      // Missing closing quote previously looped forever (#2).
+      this.reportError('unterminated string', String(quote));
+      return;
     }
     this.current_++;
     this.makeToken('String', string);
