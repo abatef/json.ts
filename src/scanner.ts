@@ -132,6 +132,13 @@ class Scanner {
         this.scanNumber();
       } else if (this.isChar(char)) {
         this.scanLiteral();
+      } else if (
+        char !== undefined &&
+        !['[', ']', '{', '}', ':', ','].includes(char)
+      ) {
+        // Unrecognized input must advance — otherwise scan() spins forever (#1).
+        this.reportError('unrecognized character', String(char));
+        this.current_++;
       }
     }
   }
